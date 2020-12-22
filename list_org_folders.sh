@@ -1,25 +1,39 @@
 #!/usr/bin/env bash
 
-: "${ORGANIZATION:?Need to export ORGANIZATION and it must be non-empty}"
+#: "${ORGANIZATION:?Need to export ORGANIZATION and it must be non-empty}"
+
+# setting gcloud formats for script
+FORMAT="csv[no-heading](name,displayName.encode(base64))"
+FORMAT_PRJ="table[box,title='Folder ${NAME} Project List'] \
+(createTime:sort=1,name,projectNumber,projectId:label=ProjectID,parent.id:label=Parent)"
 
 printf "Are you parsing the full organization or just folders?\n"
 read -p "Enter ORG or FLD: "
 
 if [ ${REPLY} == "ORG" ]; then
-  echo "Organization"
+  # Start at the Org
+  if [ -z "${ORGANIZATION}" ]; then
+    read -p "Enter Organization ID: " ORGID
+    ORGANIZATION=${ORGID}
+  fi
+
+  printf "Organization: ${ORGANIZATION}\n\n"
   PARSEOPT="organization=${ORGANIZATION}"
 else
-  echo "Folder"
   read -p "Enter Folder ID #: " folderID
   FID=${folderID}
-  echo "FID is ${FID}"
+  printf "Folder: ${FID}\n\n"
   PARSEOPT="folder=${FID}"
+
+  TOPLevelFolder=$(gcloud projects list \
+        --filter parent.id:${FID} \
+        --format="${FORMAT_PRJ}")
+
+  printf "Folder: ${FID}\n"
+      printf "Project: Project info:\n\n"
+      printf "${TOPLevelFolder}\n\n"
 fi
 
-# gcloud format
-FORMAT="csv[no-heading](name,displayName.encode(base64))"
-FORMAT_PRJ="table[box,title='Folder ${NAME} Project List'] \
-(createTime:sort=1,name,projectNumber,projectId:label=ProjectID,parent.id:label=Parent)"
 
 # Enumerates Folders recursively
 folders()
@@ -54,29 +68,17 @@ folders()
   done
 }
 
-# Start at the Org
-printf "Org: ${ORGANIZATION}\n\n"
-# LINES=$(gcloud resource-manager folders list \
-#   --organization=${ORGANIZATION} \
-#   --format="${FORMAT}")
+# TOPLevelFolder=$(gcloud projects list \
+#       --filter parent.id:${FID} \
+#       --format="${FORMAT_PRJ}")
 
-TOPLevelFolder=$(gcloud projects list \
-      --filter parent.id:744980836391 \
-      --format="${FORMAT_PRJ}")
-
-printf "Folder: 744980836391\n"
-    printf "Project: Project info:\n\n"
-    printf "${TOPLevelFolder}\n\n"
+# printf "Folder: ${FID}\n"
+#     printf "Project: Project info:\n\n"
+#     printf "${TOPLevelFolder}\n\n"
 
 LINES=$(gcloud resource-manager folders list \
   --"${PARSEOPT}" \
   --format="${FORMAT}")
 
-
 # Descend
 folders ${LINES[0]}
-
-# TODO: Option to run all (organization) OR Decendents of a Folder
-# If Organization, start at the top
-# If Decendents from a Folder:
-# Then parse folder for projects before moving through each folder
