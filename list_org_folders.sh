@@ -2,6 +2,20 @@
 
 : "${ORGANIZATION:?Need to export ORGANIZATION and it must be non-empty}"
 
+printf "Are you parsing the full organization or just folders?\n"
+read -p "Enter ORG or FLD: "
+
+if [ ${REPLY} == "ORG" ]; then
+  echo "Organization"
+  PARSEOPT="organization=${ORGANIZATION}"
+else
+  echo "Folder"
+  read -p "Enter Folder ID #: " folderID
+  FID=${folderID}
+  echo "FID is ${FID}"
+  PARSEOPT="folder=${FID}"
+fi
+
 # gcloud format
 FORMAT="csv[no-heading](name,displayName.encode(base64))"
 FORMAT_PRJ="table[box,title='Folder ${NAME} Project List'] \
@@ -9,7 +23,6 @@ FORMAT_PRJ="table[box,title='Folder ${NAME} Project List'] \
 
 # Enumerates Folders recursively
 folders()
-# project()
 {
   LINES=("$@")
   for LINE in ${LINES[@]}
@@ -47,9 +60,18 @@ printf "Org: ${ORGANIZATION}\n\n"
 #   --organization=${ORGANIZATION} \
 #   --format="${FORMAT}")
 
+TOPLevelFolder=$(gcloud projects list \
+      --filter parent.id:744980836391 \
+      --format="${FORMAT_PRJ}")
+
+printf "Folder: 744980836391\n"
+    printf "Project: Project info:\n\n"
+    printf "${TOPLevelFolder}\n\n"
+
 LINES=$(gcloud resource-manager folders list \
-  --folder=744980836391 \
+  --"${PARSEOPT}" \
   --format="${FORMAT}")
+
 
 # Descend
 folders ${LINES[0]}
