@@ -19,16 +19,14 @@ folders() {
     NAME=$(echo ${VALUES[1]} | base64 --decode)
     printf "Folder: ${FOLDER} (${NAME})\n\n"
 
-    printf "Project: Project info:\n\n"
-    # PROJECT=$(gcloud projects list \
-    #   --filter parent.id:${FOLDER} \
-    #   --format="${FORMAT_PRJ}")
+    printf "Project info:\n\n"
     projects ${FOLDER}
 
     if [ -z "$PROJECT" ]; then
       printf "Folder: ${FOLDER} - ${NAME} has no sub-projects\n\n"
     else
-      printf "Parent FolderID: ${FOLDER}\t Parent Name(s): ${NAME}\n${PROJECT} \n\n"
+
+      printf "Parent FolderID: ${FOLDER}\t Parent Name: ${NAME}\n${PROJECT} \n\n"
     fi
 
     folders $(gcloud resource-manager folders list \
@@ -70,9 +68,6 @@ else
   PARSEOPT="folder=${FOLDER}"
 
   projects ${FOLDER}
-  # PROJECT=$(gcloud projects list \
-  #       --filter parent.id:"${FOLDER}" \
-  #       --format="${FORMAT_PRJ}")
 
   printf "Folder: ${FOLDER}\n"
       printf "Project: Project info:\n\n"
