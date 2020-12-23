@@ -24,12 +24,12 @@ else
   PARSEOPT="folder=${FOLDER}"
 
   PROJECT=$(gcloud projects list \
-        --filter parent.id:${FOLDER} \
+        --filter parent.id:"${FOLDER}" \
         --format="${FORMAT_PRJ}")
 
   printf "Folder: ${FOLDER}\n"
       printf "Project: Project info:\n\n"
-      printf "${TOPLevelFolder}\n\n"
+      printf "${PROJECT}\n\n"
 fi
 
 # Enumerates Folders recursively
@@ -50,7 +50,7 @@ folders() {
       --filter parent.id:${FOLDER} \
       --format="${FORMAT_PRJ}")
 
-    if [ -z "$project" ]; then
+    if [ -z "$PROJECT" ]; then
       printf "Folder: ${FOLDER} - ${NAME} has no sub-projects\n\n"
     else
       printf "Parent FolderID: ${FOLDER}\t Parent Name(s): ${NAME}\n${PROJECT} \n\n"
