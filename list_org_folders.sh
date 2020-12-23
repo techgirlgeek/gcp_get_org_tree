@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-#: "${ORGANIZATION:?Need to export ORGANIZATION and it must be non-empty}"
-
 # setting gcloud formats for script
 FORMAT="csv[no-heading](name,displayName.encode(base64))"
 FORMAT_PRJ="table[box,title='Folder ${NAME} Project List'] \
@@ -21,23 +19,21 @@ if [ ${REPLY} == "ORG" ]; then
   PARSEOPT="organization=${ORGANIZATION}"
 else
   read -p "Enter Folder ID #: " folderID
-  FID=${folderID}
-  printf "Folder: ${FID}\n\n"
-  PARSEOPT="folder=${FID}"
+  FOLDER=${folderID}
+  printf "Folder: ${FOLDER}\n\n"
+  PARSEOPT="folder=${FOLDER}"
 
-  TOPLevelFolder=$(gcloud projects list \
-        --filter parent.id:${FID} \
+  PROJECT=$(gcloud projects list \
+        --filter parent.id:${FOLDER} \
         --format="${FORMAT_PRJ}")
 
-  printf "Folder: ${FID}\n"
+  printf "Folder: ${FOLDER}\n"
       printf "Project: Project info:\n\n"
       printf "${TOPLevelFolder}\n\n"
 fi
 
-
 # Enumerates Folders recursively
-folders()
-{
+folders() {
   LINES=("$@")
   for LINE in ${LINES[@]}
   do
@@ -50,15 +46,14 @@ folders()
     printf "Folder: ${FOLDER} (${NAME})\n\n"
 
     printf "Project: Project info:\n\n"
-    project=$(gcloud projects list \
+    PROJECT=$(gcloud projects list \
       --filter parent.id:${FOLDER} \
       --format="${FORMAT_PRJ}")
 
-    if [ -z "$project" ]
-    then
+    if [ -z "$project" ]; then
       printf "Folder: ${FOLDER} - ${NAME} has no sub-projects\n\n"
     else
-      printf "Parent FolderID: ${FOLDER}\t Parent Name(s): ${NAME}\n${project} \n\n"
+      printf "Parent FolderID: ${FOLDER}\t Parent Name(s): ${NAME}\n${PROJECT} \n\n"
     fi
 
     folders $(gcloud resource-manager folders list \
@@ -67,14 +62,6 @@ folders()
 
   done
 }
-
-# TOPLevelFolder=$(gcloud projects list \
-#       --filter parent.id:${FID} \
-#       --format="${FORMAT_PRJ}")
-
-# printf "Folder: ${FID}\n"
-#     printf "Project: Project info:\n\n"
-#     printf "${TOPLevelFolder}\n\n"
 
 LINES=$(gcloud resource-manager folders list \
   --"${PARSEOPT}" \
