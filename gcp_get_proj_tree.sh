@@ -25,6 +25,7 @@ folders() {
     if [ -z "$PROJECT" ]; then
       printf "Folder: ${FOLDER} - ${NAME} has no sub-projects\n\n"
     else
+
       printf "Parent FolderID: ${FOLDER}\t Parent Name: ${NAME}\n${PROJECT} \n\n"
     fi
 
