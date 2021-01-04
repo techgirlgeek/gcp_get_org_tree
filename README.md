@@ -2,8 +2,8 @@
 
 This code will allow the user to get a list of either:
 
-1. All Folders and projects from within DaVita.com Organization
-2. All Folders and Projects from within a specified Folder within the DaVita Organization.
+1. All Folders and projects from within an Organization
+2. All Folders and Projects from within a specified Folder within an Organization.
 
 To execute the code:
 Enter:
