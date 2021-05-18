@@ -6,8 +6,6 @@ FORMAT="csv[no-heading](name,displayName.encode(base64))"
 printf "Are you parsing the full organization or just folders?\n"
 read -p "Enter ORG or FLD: "
 
-echo "Name,ProjectNumber,ProjectID"
-
 # Function to enumerate Folders recursively
 folders() {
   LINES=("$@")
@@ -24,11 +22,7 @@ folders() {
     #printf "Project info:\n\n"
     projects ${FOLDER}
 
-    #if [ -z "$PROJECT" ]; then
-    #  printf "Folder: ${FOLDER} - ${NAME} has no sub-projects\n\n"
-    #else
-     printf "${PROJECT}\n"
-    #fi
+    printf "${PROJECT}\n"
 
     folders $(gcloud resource-manager folders list \
       --folder=${FOLDER} \
