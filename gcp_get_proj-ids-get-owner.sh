@@ -63,6 +63,12 @@ while true; do
 
       printf "Organization: ${ORGANIZATION}\n\n"
       PARSEOPT="organization=${ORGANIZATION}"
+
+      LINES=$(gcloud resource-manager folders list \
+        --"${PARSEOPT}" \
+        --format="${FORMAT}")
+
+      folders ${LINES[0]}
       break;;
     FLD)
       read -p "Enter Folder ID #: " folderID
